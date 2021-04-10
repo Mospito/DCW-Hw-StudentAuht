@@ -7,7 +7,9 @@ const Navbar = () => (
         <Link href="/login"><a> Login </a></Link> |
         <Link href="/profile"><a> Profile </a></Link> | 
         <Link href="/getConfig"><a> Config </a></Link> | 
-        <Link href="/logout"><a> Logout </a></Link> 
+        <Link href="/logout"><a> Logout </a></Link> |
+        <Link href="/foo"><a>Foo</a></Link> |
+        <Link href="/students"><a>Students</a></Link>
     </div>
 )
 

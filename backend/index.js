@@ -7,9 +7,17 @@ const express = require('express'),
     cookie = require('cookie')
 
 const bcrypt = require('bcrypt')
+const { json } = require('express')
 
 const db = require('./database.js')
 let users = db.users
+// let students = db.students
+
+let students = {
+    list: [
+        { id: 1, fname: "Mospito", surname: "Pito", major: "CoE", gpa: 2.2 }
+    ]
+}
 
 require('./passport.js')
 
@@ -21,6 +29,102 @@ router.use(cors({ origin: 'http://localhost:3000', credentials: true }))
 // router.use(cors())
 router.use(express.json())
 router.use(express.urlencoded({ extended: false }))
+
+//Foo Check point 1
+router.get('/foo',
+    passport.authenticate('jwt', { session: false }),
+    (req, res, next) => {
+        res.send({ status: "Foo" })
+    });
+
+//Home Work
+// router.get('/students',
+//     passport.authenticate('jwt', { session: false }),
+//     (req, res, next) => {
+//         res.json(students)
+//     }
+// )
+router.route('/students')
+    .get((req, res) => res.json(students))
+
+
+router.post('/students',
+    // passport.authenticate('jwt', { session: false }),
+    (req, res) => {
+        try {
+
+            let newStudent = {}
+            newStudent.id = (students.list.length) ? students.list[students.list.length - 1].id + 1 : 1
+            newStudent.fname = req.body.fname;
+            newStudent.surname = req.body.surname;
+            newStudent.major = req.body.major;
+            newStudent.gpa = req.body.gpa;
+
+            students = { "list": [...students.list, newStudent] }
+            res.json(students)
+        }
+        catch
+        {
+            res.json({ status: "Add Fail" })
+        }
+
+
+
+    })
+    router.route('/students/:std_id')
+    .get((req, res) => {
+
+        let ID = students.list.findIndex( item => (item.id === +req.params.std_id))
+        if(ID >= 0)
+        {
+            res.json(students.list[ID])
+        }
+        else
+        {
+            res.json({status: "Student Error can't find!"})
+        }
+
+    })
+
+    .put( (req,res) => { 
+
+        let ID = students.list.findIndex( item => ( item.id === +req.params.std_id))
+        
+        if( ID >= 0)
+        {
+            students.list[ID].fname = req.body.fname
+            students.list[ID].surname = req.body.surname
+            students.list[ID].major = req.body.major
+            students.list[ID].gpa = req.body.gpa
+            
+            res.json(students)
+
+
+        }
+        else
+        {
+            res.json({status: "Student Error can't find!"})
+        }
+            
+    })
+
+    .delete((req, res) => {
+
+        let ID = students.list.findIndex( item => ( item.id === +req.params.std_id))
+
+        if(ID>=0)
+        {
+            students.list = students.list.filter( item => item.id !== +req.params.std_id)
+            res.json(students)
+        }
+        else
+        {
+            res.json({status: "Student Error can't find!"})
+        }
+
+    })
+
+
 
 
 router.post('/login', (req, res, next) => {
@@ -49,7 +153,7 @@ router.post('/login', (req, res, next) => {
     })(req, res, next)
 })
 
-router.get('/logout', (req, res) => { 
+router.get('/logout', (req, res) => {
     res.setHeader(
         "Set-Cookie",
         cookie.serialize("token", '', {
@@ -75,9 +179,9 @@ router.post('/register',
     async (req, res) => {
         try {
             const SALT_ROUND = 10
-            const { username, email, password } = req.body 
+            const { username, email, password } = req.body
             if (!username || !email || !password)
-                return res.json( {message: "Cannot register with empty string"})
+                return res.json({ message: "Cannot register with empty string" })
             if (db.checkExistingUser(username) !== db.NOT_FOUND)
                 return res.json({ message: "Duplicated user" })
 
@@ -90,7 +194,7 @@ router.post('/register',
         }
     })
 
-router.get('/alluser', (req,res) => res.json(db.users.users))
+router.get('/alluser', (req, res) => res.json(db.users.users))
 
 router.get('/', (req, res, next) => {
     res.send('Respond without authentication');
