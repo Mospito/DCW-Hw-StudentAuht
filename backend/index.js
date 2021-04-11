@@ -133,7 +133,7 @@ router.post('/login', (req, res, next) => {
         if (err) return next(err)
         if (user) {
             const token = jwt.sign(user, db.SECRET, {
-                expiresIn: '1d'
+                expiresIn: (req.body.ischeck === "on")? '7d': '1d'
             })
             // req.cookie.token = token
             res.setHeader(

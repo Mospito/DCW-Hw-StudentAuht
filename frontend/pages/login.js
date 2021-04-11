@@ -11,11 +11,12 @@ export default function Login({ token }) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [status, setStatus] = useState('')
+    const [ischeck, setIscheck] = useState('')
 
     const login = async (req, res) => {
         try {
             let result = await axios.post(`${config.URL}/login`,
-                { username, password },
+                { username, password,ischeck },
                 { withCredentials: true })
             console.log('result: ', result)
             console.log('result.data:  ', result.data)
@@ -67,13 +68,24 @@ export default function Login({ token }) {
                 <div><b>Token:</b> {token.substring(0, 15)}...
                 <button onClick={copyText}> Copy token </button>
                 </div>
-                <br/>
+                <br />
                 <div>
                     Status:  {status}
+                    check: {ischeck}
                 </div>
                 <br />
                 {loginForm()}
+
                 <div>
+                    <input type="checkbox"
+                        name="IsRememberMe"
+                        onChange={ (e) => setIscheck(e.target.value)}
+                    />Remember me!
+                    <br /><br />
+                </div>
+
+                <div>
+                    
                     <button onClick={login}>Login</button>
                 </div>
             </div>
